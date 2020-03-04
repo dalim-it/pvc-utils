@@ -5,13 +5,15 @@ ENV RCLONE_VERSION=v1.48.0 \
     RESTIC_PASSWORD=pleaseChangeMe \
     RESTIC_PASSWORD_FILE=/tmp/restic_pass
 
-RUN apk add --no-cache curl restic rsync \
+RUN apk add --no-cache curl restic rsync openssh \
     && curl -O https://downloads.rclone.org/$RCLONE_VERSION/rclone-$RCLONE_VERSION-linux-amd64.zip \
     && unzip rclone-$RCLONE_VERSION-linux-amd64.zip \
     && cp rclone-$RCLONE_VERSION-linux-amd64/rclone /usr/bin/ \
     && chown root:root /usr/bin/rclone \
     && chmod 755 /usr/bin/rclone \
-    && mkdir -p $RCLONE_CONF_DIR
+    && mkdir -p $RCLONE_CONF_DIR \
+    && echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config \
+    && ssh-keygen -A
 
 VOLUME [ "/pvc-files", "/restic", "/root/.config/rclone" ]
 
